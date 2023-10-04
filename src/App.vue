@@ -15,34 +15,55 @@
     
   <script>
   import axios from "axios";
-  import { ref, onMounted } from "vue";
-
+  
+  async function obtener() {
+      let r = await axios.get(`https://boleto.onrender.com/api/cliente/ver`);
+      console.log(r); 
+  }
+  
+  obtener()
+  
+  
+  const columns = [
+    {
+      name: 'name',
+      required: true,
+      label: 'Cedula',
+      align: 'left',
+      field: row => row.name,
+      format: val => `${val}`,
+      sortable: true
+    },
+    { name: 'calories', align: 'center', label: 'Calories', field: 'calories', sortable: true },
+    { name: 'fat', label: 'Fat (g)', field: 'fat', sortable: true },
+    { name: 'carbs', label: 'Carbs (g)', field: 'carbs' },
+    { name: 'protein', label: 'Protein (g)', field: 'protein' },
+    { name: 'sodium', label: 'Sodium (mg)', field: 'sodium' },
+    { name: 'calcium', label: 'Calcium (%)', field: 'calcium', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) },
+    { name: 'iron', label: 'Iron (%)', field: 'iron', sortable: true, sort: (a, b) => parseInt(a, 10) - parseInt(b, 10) }
+  ]
+  
+  const rows = [
+    {
+      name: 'Frozen Yogurt',
+      calories: 159,
+      fat: 6.0,
+      carbs: 24,
+      protein: 4.0,
+      sodium: 87,
+      calcium: '14%',
+      iron: '1%'
+    },
+  ]
+  
   export default {
-  setup() {
-    const columns = [
-    ];
-
-    const rows = ref([]);
-
-    async function obtenerDatos() {
-  try {
-    const response = await axios.get('https://boleto.onrender.com/api/cliente/ver');
-    console.log('Respuesta del servidor:', response);
-    rows.value = response.data; 
-  } catch (error) {
-    console.error('Error al obtener datos:', error);
+    setup () {
+      return {
+        columns,
+        rows
+      }
+    }
   }
-}
-    onMounted(() => {
-      obtenerDatos();
-    });
-
-    return {
-      columns,
-      rows
-    };
-  }
-};
   </script>
     
     <style scoped>
