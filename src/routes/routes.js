@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import login from '../components/login.vue';
-import compras from '../components/compras.vue';
+import clientes from '../components/clientes.vue';
 import ventas from '../components/ventas.vue';
 
 const routes = [
     { path: '/', component: login },
-    { path: '/compras', component: compras },
+    { path: '/clientes', component: clientes },
     { path: '/ventas', component: ventas }
 ];
 

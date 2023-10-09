@@ -1,5 +1,42 @@
 <template>
     <div>
+      <q-btn label="Añadir" color="primary" @click="toolbar = true" />
+      <q-dialog v-model="toolbar">
+        <q-card>
+        <q-toolbar>
+          <q-avatar>
+            <img src="https://cdn.quasar.dev/logo-v2/svg/logo.svg" />
+          </q-avatar>
+
+          <q-toolbar-title>Agregar cliente</q-toolbar-title>
+
+        <q-btn flat round dense icon="close" v-close-popup />
+        </q-toolbar>
+
+        <q-card-section>
+          <label for="">Cedula: </label><br />
+          <input type="number" v-model="cedula" />
+          <br />
+          <label for="">Nombre: </label><br />
+          <input type="text" v-model="nombre" />
+          <br />
+          <label for="">Apellido: </label><br />
+          <input type="text" v-model="apellido" /><br />
+          <label for="">Edad: </label><br />
+          <input type="number" v-model="edad" /><br />
+          <label for="">Telefono: </label><br />
+          <input type="number" v-model="telefono" /><br />
+          <label for="">Email: </label><br />
+          <input type="text" v-model="email" /><br />
+          <label for="">Contrasena: </label><br />
+          <input type="text" v-model="contrasena" /><br />
+          <label for="">Maleta: </label><br />
+          <input type="number" v-model="maleta" /><br />
+          <button @click="agregar()">Enviar</button>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
     <div class="q-pa-md">
       <q-markup-table>
           <thead>
@@ -15,6 +52,8 @@
               <th class="text-right"><b>Email</b></th>
               <th class="text-right"><b>Contrasena</b></th>
               <th class="text-right"><b>maleta</b></th>
+              <th class="text-right"><b>Estado</b></th>
+              <th class="text-right"><b>Opciones</b></th>
             </tr>
           </thead>
           <tbody>
@@ -27,15 +66,15 @@
               <td class="text-right">{{ row.email }}</td>
               <td class="text-right">{{ row.contrasena }}</td>
               <td class="text-right">{{ row.maleta }}</td>
+              <td class="text-right">{{ row.estado }}</td>
               <td class="text-right">
-                <q-btn label="Editar" color="primary" @click="editar(row)">
+                <q-btn label="Editar" color="primary" @click="editar(row)"/>
               </td>
-            </tr>
-          </tbody>
-          <q-markup-table>
-      </div>
-  </q-table>
-      
+          </tr>
+        </tbody>
+      </q-markup-table>
+    </div>
+  </div>
     </template>
       
     <script>
@@ -85,6 +124,11 @@
         field: (row) => row.maleta,
       },
       {
+        name: "Estado",
+        label: "Estado",
+        field: (row) => row.estado,
+      },
+      {
         name: "Opciones",
         label: "Opciones",
         field: "actions",
@@ -93,34 +137,101 @@
 
     const rows=ref([]);
     const id=ref("");
-    const cedula=("");
-    const nombre=("");
-    const apellido=("");
-    const edad=("");
-    const telefono=("");
-    const email=("");
-    const contrasena=("");
-    const maleta=("");
+    const cedula=ref("");
+    const nombre=ref("");
+    const apellido=ref("");
+    const edad=ref("");
+    const telefono=ref("");
+    const email=ref("");
+    const contrasena=ref("");
+    const maleta=ref("");
+    const estado = ref(1)
+    const toolbar = ref(false);
+    const cambiar = ref(false);
 
+    const agregar = async () => {
+    if (cambiar.value == true) {
+    const data = {
+    id: id.value,
+    cedula: cedula.value,
+    };
+    const buscar = rows.value.findIndex(r=>r._id==id.value)
     
-    export default {
-      setup () {
-        return {
-          columns,
-          rows
-        }
-      }
-    }
-  
+    console.log(data);
+    const cliente = await axios.put(
+      `https://boleto.onrender.com/api/cliente/modificar`,
+    data
+    ).then((response)=>{
+      console.log("r", response);
+      rows.value.splice(buscar, 1,response.data.cliente)
+    }).catch((error)=>{
+      console.log("e", error);
+    })
+  }else{
+    const data ={
+      telefono: telefono.value,
+      email: email.value,
+      contrasena: contrasena.value
+    };
+    const clientes = await axios.post(
+      `https://boleto.onrender.com/api/cliente/agregar`,
+      data
+    );
+    rows.value.push(clientes.data.cliente);
+  }
+  toolbar.value = false
+}
+
     async function obtener() {
-        let r = await axios.get(`https://boleto.onrender.com/api/cliente/ver`);
-        console.log(r); 
+      console.log("Esperando datos");
+      const clientes =  await axios.get(
+        `https://boleto.onrender.com/api/cliente/ver`
+        );
+        rows.value = clientes.data.cliente;
     }
     
     obtener()
+
+    const editar = (row) => {
+    console.log(row);
+    toolbar.value = true;
+    id.value=row._id
+    cambiar.value=true
+    cedula.value=row.cedula
+    nombre.value=row.nombre
+    apellido.value=row.apellido
+    edad.value=row.edad
+    telefono.value=row.telefono
+    email.value=row.email
+    contrasena.value=row.contrasena
+    maleta.value=row.maleta
+    estado.value=row.estado
+};
+  
     
-    </script>
+    export default {
+  setup() {
+    return {
+      toolbar,
+      selected: ref([]),
+      columns,
+      rows,
+      id,
+      cedula,
+      nombre,
+      apellido,
+      edad,
+      telefono,
+      email,
+      contrasena,
+      estado,
+      agregar,
+      editar,
+    };
+  },
+};
+</script>
       
-      <style scoped>
-      </style>
+  <style scoped>
+  </style>
       
