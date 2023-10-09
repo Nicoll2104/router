@@ -1,16 +1,13 @@
 <template>
     <div>
-      <q-btn label="Añadir" color="primary" @click="toolbar = true" />
+      <q-btn label="Agregar" color="primary" @click="toolbar = true" />
       <q-dialog v-model="toolbar">
         <q-card>
         <q-toolbar>
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/logo-v2/svg/logo.svg" />
-          </q-avatar>
 
-          <q-toolbar-title>Agregar cliente</q-toolbar-title>
+          <q-toolbar-title>Encuesta</q-toolbar-title>
 
-        <q-btn flat round dense icon="close" v-close-popup />
+        <q-btn flat round dense icon="❌" v-close-popup />
         </q-toolbar>
 
         <q-card-section>
@@ -30,7 +27,7 @@
           <input type="text" v-model="email" /><br />
           <label for="">Contrasena: </label><br />
           <input type="text" v-model="contrasena" /><br />
-          <label for="">Maleta: </label><br />
+          <label for="">Maleta:</label><br />
           <input type="number" v-model="maleta" /><br />
           <button @click="agregar()">Enviar</button>
         </q-card-section>
@@ -182,31 +179,33 @@
   toolbar.value = false
 }
 
-    async function obtener() {
-      console.log("Esperando datos");
-      const clientes =  await axios.get(
-        `https://boleto.onrender.com/api/cliente/ver`
-        );
-        rows.value = clientes.data.cliente;
-    }
+const obtener = async () => {
+  try {
+    const response = await axios.get(`https://boleto.onrender.com/api/cliente/ver`);
+    rows.value = response.data;
+    console.log(response);
+  } catch (error) {
+    console.error('Error al obtener clientes:', error);
+  }
+};
     
     obtener()
 
     const editar = (row) => {
-    console.log(row);
-    toolbar.value = true;
-    id.value=row._id
-    cambiar.value=true
-    cedula.value=row.cedula
-    nombre.value=row.nombre
-    apellido.value=row.apellido
-    edad.value=row.edad
-    telefono.value=row.telefono
-    email.value=row.email
-    contrasena.value=row.contrasena
-    maleta.value=row.maleta
-    estado.value=row.estado
+  id.value = row._id;
+  cedula.value = row.cedula;
+  nombre.value = row.nombre;
+  apellido.value = row.apellido;
+  edad.value = row.edad;
+  telefono.value = row.telefono;
+  email.value = row.email;
+  contrasena.value = row.contrasena;
+  maleta.value = row.maleta;
+  estado.value = row.estado;
+  toolbar.value = true;
+  cambiar.value = true;
 };
+
   
     
     export default {
@@ -224,6 +223,7 @@
       telefono,
       email,
       contrasena,
+      maleta,
       estado,
       agregar,
       editar,
