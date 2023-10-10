@@ -25,8 +25,6 @@
           <input type="number" v-model="telefono" /><br />
           <label for="">Email: </label><br />
           <input type="text" v-model="email" /><br />
-          <label for="">Contrasena: </label><br />
-          <input type="text" v-model="contrasena" /><br />
           <label for="">Maleta:</label><br />
           <input type="number" v-model="maleta" /><br />
           <button @click="agregar()">Enviar</button>
@@ -47,9 +45,8 @@
               <th class="text-right"><b>Edad</b></th>
               <th class="text-right"><b>Telefono</b></th>
               <th class="text-right"><b>Email</b></th>
-              <th class="text-right"><b>Contrasena</b></th>
               <th class="text-right"><b>maleta</b></th>
-              <th class="text-right"><b>Estado</b></th>
+              <th class="text-right"><b>Status</b></th>
               <th class="text-right"><b>Opciones</b></th>
             </tr>
           </thead>
@@ -61,20 +58,23 @@
               <td class="text-right">{{ row.edad }}</td>
               <td class="text-right">{{ row.telefono }}</td>
               <td class="text-right">{{ row.email }}</td>
-              <td class="text-right">{{ row.contrasena }}</td>
               <td class="text-right">{{ row.maleta }}</td>
-              <td class="text-right">{{ row.estado }}</td>
-              <td class="text-right">
-                <q-btn label="Editar" color="primary" @click="editar(row)"/>
-              </td>
+              <td class="text-right">{{ row.status }}</td>
+              <template v-slot:body-cell-botones="props">
+              <q-td :props="props" class="botones">
+              <q-btn label="✏️" color="primary" @click="editar(props.row)" />
+              <q-btn label="❌" color="primary" @click="inactivar(props.row.id)" v-if="props.row.status === 1" />
+              <q-btn label="✅" color="primary" @click="activar(props.row)" v-else />
+              </q-td>
+              </template>
           </tr>
         </tbody>
       </q-markup-table>
     </div>
   </div>
-    </template>
+</template>
       
-    <script>
+    <script >
     import axios from "axios";
     import { ref } from "vue";
     
@@ -111,19 +111,16 @@
         field: (row) => row.email,
       },
       {
-        name: 'Contrasena',
-        label: 'Contrasena',
-        field: (row) => row.contrasena,
-      },
-      {
         name: 'Maleta',
         label: 'Maleta',
         field: (row) => row.maleta,
       },
       {
-        name: "Estado",
-        label: "Estado",
-        field: (row) => row.estado,
+        name: "Status",
+        label: "Status",
+        field: (row) => row.status,
+        sortable:true,
+        format:(val)=>(val? 'activo' : 'inactivo')
       },
       {
         name: "Opciones",
@@ -140,44 +137,10 @@
     const edad=ref("");
     const telefono=ref("");
     const email=ref("");
-    const contrasena=ref("");
     const maleta=ref("");
-    const estado = ref(1)
+    const status = ref(1)
     const toolbar = ref(false);
-    const cambiar = ref(false);
 
-    const agregar = async () => {
-    if (cambiar.value == true) {
-    const data = {
-    id: id.value,
-    cedula: cedula.value,
-    };
-    const buscar = rows.value.findIndex(r=>r._id==id.value)
-    
-    console.log(data);
-    const cliente = await axios.put(
-      `https://boleto.onrender.com/api/cliente/modificar`,
-    data
-    ).then((response)=>{
-      console.log("r", response);
-      rows.value.splice(buscar, 1,response.data.cliente)
-    }).catch((error)=>{
-      console.log("e", error);
-    })
-  }else{
-    const data ={
-      telefono: telefono.value,
-      email: email.value,
-      contrasena: contrasena.value
-    };
-    const clientes = await axios.post(
-      `https://boleto.onrender.com/api/cliente/agregar`,
-      data
-    );
-    rows.value.push(clientes.data.cliente);
-  }
-  toolbar.value = false
-}
 
 const obtener = async () => {
   try {
@@ -190,22 +153,6 @@ const obtener = async () => {
 };
     
     obtener()
-
-    const editar = (row) => {
-  id.value = row._id;
-  cedula.value = row.cedula;
-  nombre.value = row.nombre;
-  apellido.value = row.apellido;
-  edad.value = row.edad;
-  telefono.value = row.telefono;
-  email.value = row.email;
-  contrasena.value = row.contrasena;
-  maleta.value = row.maleta;
-  estado.value = row.estado;
-  toolbar.value = true;
-  cambiar.value = true;
-};
-
   
     
     export default {
@@ -222,11 +169,8 @@ const obtener = async () => {
       edad,
       telefono,
       email,
-      contrasena,
       maleta,
-      estado,
-      agregar,
-      editar,
+      status,
     };
   },
 };
