@@ -144,6 +144,26 @@ const obtener = async () => {
   }
 };
 
+
+const agregarCliente = async () => {
+  try {
+    const response = await axios.post(`https://boleto.onrender.com/api/cliente/agregar`, {
+      cedula: cedula.value,
+      nombre: nombre.value,
+      apellido: apellido.value,
+      edad: edad.value,
+      telefono: telefono.value,
+      email: email.value,
+      maleta: maleta.value,
+      status: status.value,
+    });
+
+    console.log("Cliente agregado:", response.data);
+  } catch (error) {
+    console.error("Error al agregar cliente:", error);
+  }
+};
+
 const agregarCliente = async () => {
     const response = await axios.post("https://boleto.onrender.com/api/cliente/agregar", {
       cedula: cedula.value,
